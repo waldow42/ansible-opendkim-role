@@ -1,0 +1,1 @@
+# ansible-opendkim-role
