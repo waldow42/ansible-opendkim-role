@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: waldow@DreamHost.com
+  description: |
+    Install and configure opendkim signing proxy.
+  license: BSD
+  company: DreamHost
+
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
