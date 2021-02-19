@@ -1,0 +1,386 @@
+# Ansible managed template from opendkim role
+##
+## opendkim.conf -- configuration file for OpenDKIM filter
+##
+## Copyright (c) 2010-2015, 2018, The Trusted Domain Project.
+##   All rights reserved.
+##
+
+##
+## For settings that refer to a "dataset", see the opendkim(8) man page.
+##
+
+
+#######################################################################
+##### GENERAL
+
+##  Mode [sv]
+##  	default sv
+##
+##  Indicates which mode(s) of operation should be provided.  "s" means
+##  "sign", "v" means "verify".
+
+Mode			s
+
+##  Background { yes | no }
+##  	default "yes"
+##
+##  Indicate whether or not the filter should run in the background.
+
+# Background		Yes
+
+##  BaseDirectory path
+##  	default (none)
+##
+##  Causes the filter to change to the named directory before beginning
+##  operation.  Thus, cores will be dumped here and configuration files
+##  are read relative to this location.
+
+# BaseDirectory		/var/run/opendkim
+
+##  PidFile filename
+##  	default (none)
+## 
+##  Name of the file where the filter should write its pid before beginning
+##  normal operations.
+
+# PidFile		filename
+
+##  Socket socketspec
+##
+##  Names the socket where this filter should listen for milter connections
+##  from the MTA.  Required.  Should be in one of these forms:
+##
+##  inet:port@address		to listen on a specific interface
+##  inet:port			to listen on all interfaces
+##  local:/path/to/socket	to listen on a UNIX domain socket
+
+Socket    {{ opendkim_socket }}
+
+##  TemporaryDirectory path
+##  	default /tmp
+##
+##  Specifies which directory will be used for creating temporary files
+##  during message processing.
+
+# TemporaryDirectory	/tmp
+
+##  KeepTemporaryFiles { yes | no }
+##  	default "no"
+##
+##  If set, causes temporary files generated during message signing or
+##  verifying to be left behind for debugging use.  Not for normal operation;
+##  can fill your disks quite fast on busy systems.
+
+# KeepTemporaryFiles	no
+
+##  UMask mask
+##  	default (none)
+##
+##  Change the process umask for file creation to the specified value.
+##  The system has its own default which will be used (usually 022).
+##  See the umask(2) man page for more information.
+
+# UMask			022
+
+##  Userid userid
+##  	default (none)
+##
+##  Change to user "userid" before starting normal operation?  May include
+##  a group ID as well, separated from the userid by a colon.
+
+# UserID		userid
+
+##  AutoRestart { yes | no }
+##  	default "no"
+##
+##  Indicate whether or not the filter should arrange to restart automatically
+##  if it crashes.
+
+# AutoRestart		No
+
+##  AutoRestartCount n
+##  	default 0
+##
+##  Sets the maximum automatic restart count.  After this number of
+##  automatic restarts, the filter will give up and terminate.  A value of 0
+##  implies no limit.
+
+# AutoRestartCount	0
+
+##  AutoRestartRate n/t[u]
+##  	default (none)
+## 
+##  Sets the maximum automatic restart rate.  See the opendkim.conf(5)
+##  man page for the format of this parameter.
+
+# AutoRestartRate	n/tu
+
+##  Syslog { yes | no }
+##  	default "yes"
+##
+##  Log informational and error activity to syslog?
+
+Syslog			Yes
+
+##  SyslogFacility      facility
+##  	default "mail"
+##
+##  Valid values are :
+##      auth cron daemon kern lpr mail news security syslog user uucp 
+##      local0 local1 local2 local3 local4 local5 local6 local7
+##
+##  syslog facility to be used
+
+SyslogFacility	mail
+
+##  SyslogName          ident
+##      default "opendkim" (or the name of the executable)
+##
+##  Identifier to be prepended to all generated log entries.
+
+# SyslogName		opendkim
+
+##  SyslogSuccess { yes | no }
+##  	default "no"
+##
+##  Log success activity to syslog?
+
+SyslogSuccess		{{ opendkim_debug | ternary("yes", "no") }}
+
+##  LogWhy { yes | no }
+##  	default "no"
+##
+##  If logging is enabled, issues very detailed logging
+##  about the logic behind the filter's decision to either sign a message
+##  or verify it.  The logic behind the decision is non-trivial and can be
+##  confusing to administrators not familiar with its operation.  A
+##  description of how the decision is made can be found in the OPERATIONS
+##  section of the opendkim(8) man page.  This causes a large increase
+##  in the amount of log data generated for each message, so it should be
+##  limited to debugging use and not enabled for general operation.
+
+LogWhy		{{ opendkim_debug | ternary("yes", "no") }}
+
+##  MilterDebug n
+##
+##  Request a debug level of "n" from the milter library.  The default is 0.
+
+MilterDebug		{{ opendkim_debug | ternary("6", "0") }}
+
+##  EnableCoredumps { yes | no }
+##  	default "no"
+##
+##  On systems which have support for such, requests that the kernel dump
+##  core even though the process may change user ID during its execution.
+
+# EnableCoredumps	no
+
+#######################################################################
+##### EMAIL PARSING
+
+##  RequiredHeaders { yes | no }
+##  	default no
+##
+##  Rejects messages which don't conform to RFC5322 header count requirements.
+
+RequiredHeaders	No
+
+##  MaximumHeaders n
+##
+##  Disallow messages whose header blocks are bigger than "n" bytes.
+##  Intended to detect and block a denial-of-service attack.  The default
+##  is 65536.  A value of 0 disables this test.
+
+# MaximumHeaders	n
+
+##  SoftwareHeader { yes | no }
+##  	default "no"
+##
+##  Add a DKIM-Filter header field to messages passing through this filter
+##  to identify messages it has processed.
+
+SoftwareHeader	no
+
+##  StrictHeaders { yes | no }
+##  	default "no"
+##
+##  Requests that the DKIM library refuse to process a message whose
+##  header fields do not conform to the standards, in particular Section 3.6
+##  of RFC5322.
+
+StrictHeaders		no
+
+##  IgnoreMalformedMail { yes | no }
+##  	default "no"
+##
+##  Silently passes malformed messages without alteration.  This includes 
+##  messages that fail the RequiredHeaders check, if enabled.  The default is
+##  to pass those messages but add an Authentication-Results field indicating
+##  that they were malformed.
+
+# IgnoreMalformedMail	no
+
+##  FixCRLF { yes | no }
+##
+##  Requests that the library convert "naked" CR and LF characters to
+##  CRLFs during canonicalization.  The default is "no".
+
+# FixCRLF 		no
+
+##  DomainKeysCompat { yes | no }
+##  	default "no"
+##
+##  When enabled, backward compatibility with DomainKeys (RFC4870) key
+##  records is enabled.  Otherwise, such key records are considered to be
+##  syntactically invalid.
+
+#DomainKeysCompat	no
+
+#######################################################################
+##### SIGNING
+
+##  SenderHeaders 	dataset
+##  	default (none)
+##
+##  Overrides the default list of headers that will be used to determine
+##  the sending domain when deciding whether to sign the message and with
+##  with which key(s).  See opendkim.conf(5) for details.
+
+SenderHeaders  From
+
+##  SignatureAlgorithm signalg
+##  	default "rsa-sha256"
+##
+##  Signature algorithm to use when generating signatures.  Must be one of
+##  "rsa-sha1", "rsa-sha256", or "ed25519-sha256".
+
+SignatureAlgorithm  {{ opendkim_signature_algorithm }}
+
+##  SignatureTTL seconds
+##  	default "0"
+##
+##  Specifies the lifetime in seconds of signatures generated by the
+##  filter.  A value of 0 means no expiration time is included in the
+##  signature.
+
+SignatureTTL		0
+
+##  SignHeaders dataset
+##  	default (none)
+##
+##  Specifies the list of headers which should be included when generating
+##  signatures.  The string should be a comma-separated list of header names.
+##  See the opendkim.conf(5) man page for more information.
+
+SignHeaders  From,To,Cc,Date,Subject,Reply-To,Sender,Content-Type,Content-Transfer-Encoding,Content-ID,Content-Description
+
+##  OmitHeaders dataset
+##  	default (none)
+##
+##  Specifies a list of headers that should always be omitted when signing.
+##  Header names should be separated by commas.
+
+# OmitHeaders		header1,header2,...
+
+##  SigningTable dataset
+##  	default (none)
+##
+##  Defines a dataset that will be queried for the message sender's address
+##  to determine which private key(s) (if any) should be used to sign the
+##  message.  The sender is determined from the value of the sender
+##  header fields as described with SenderHeaders above.  The key for this
+##  lookup should be an address or address pattern that matches senders;
+##  see the opendkim.conf(5) man page for more information.  The value
+##  of the lookup should return the name of a key found in the KeyTable
+##  that should be used to sign the message.  If MultipleSignatures
+##  is set, all possible lookup keys will be attempted which may result
+##  in multiple signatures being applied.
+
+SigningTable  {{ opendkim_signing_table }}
+
+##  KeyTable dataset
+##  	default (none)
+##
+##  Defines a table that will be queried to convert key names to
+##  sets of data of the form (signing domain, signing selector, private key).
+##  The private key can either contain a PEM-formatted private key,
+##  a base64-encoded DER format private key, or a path to a file containing
+##  one of those.
+
+KeyTable  {{ opendkim_key_table }}
+
+##  BodyLengthDB dataset
+##  	default (none)
+##
+##  A data set that is checked against envelope recipients to see if a
+##  body length tag should be included in the generated signature.
+##  This has security implications; see opendkim.conf(5) for details.
+
+# BodyLengthDB		dataset
+
+##  DontSignMailTo	dataset
+##  	default (none)
+##
+##  Gives a list of recipient addresses or address patterns whose mail should
+##  not be signed.
+
+# DontSignMailTo	addr1,addr2,...
+
+##  MaximumSignedBytes n
+##
+##  Don't sign more than "n" bytes of the message.  The default is to 
+##  sign the entire message.  Setting this implies "BodyLengths".
+
+# MaximumSignedBytes	n
+
+##  MultipleSignatures { yes | no }
+##  	default no
+##
+##  Allows multiple signatures to be added.  If set to "true" and a SigningTable
+##  is in use, all SigningTable entries that match the candidate message will
+##  cause a signature to be added.  Otherwise, only the first matching
+##  SigningTable entry will be added, or only the key defined by Domain,
+##  Selector and KeyFile will be added.
+
+# MultipleSignatures	no
+
+##  RemoveOldSignatures { yes | no }
+##  	default "no"
+##
+##  Remove old signatures on messages, if any, when generating a signature.
+
+RemoveOldSignatures	No
+
+##  Canonicalization hdrcanon[/bodycanon]
+##  	default "simple/simple"
+##
+##  Select canonicalizations to use when signing.  If the "bodycanon" is
+##  omitted, "simple" is used.  Valid values for each are "simple" and
+##  "relaxed".
+
+Canonicalization  relaxed/relaxed
+
+##  SubDomains { yes | no }
+##  	default "no"
+##
+##  Sign for subdomains as well?
+
+# SubDomains		No
+
+##  ExternalIgnoreList filename
+##
+##  Names a file from which a list of externally-trusted hosts is read.
+##  These are hosts which are allowed to send mail through you for signing.
+##  Automatically contains 127.0.0.1.  See man page for file format.
+
+# ExternalIgnoreList	filename
+
+##  Diagnostics { yes | no }
+##  	default "no"
+##
+##  Specifies whether or not signatures with header diagnostic tags should
+##  be generated.
+
+# Diagnostics		No
+

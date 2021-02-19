@@ -1,0 +1,11 @@
+extends: default
+
+rules:
+  # 90 chars should be enough, but don't fail if a line is longer
+  line-length:
+    level: warning
+  indentation:
+    spaces: 2
+
+ignore: |
+  .yamllint.yaml

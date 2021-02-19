@@ -1,0 +1,17 @@
+---
+- name: main | install opendkim packages
+  apt:
+    name: "{{ vars['packages_' + ansible_distribution_release + '_' + item] }}"
+    force_apt_get: true
+  with_items:
+    - opendkim
+  notify: restart_opendkim
+
+- name: main | Push config for applying DKIM signatures
+  template:
+    src: templates/etc/opendkim.conf.j2
+    dest: /etc/opendkim.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart_opendkim

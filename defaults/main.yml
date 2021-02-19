@@ -1,0 +1,14 @@
+---
+packages_focal_opendkim:
+  - opendkim
+
+# Where should opendkim listen for requests to sign emails.
+opendkim_socket: "inet:10027@0.0.0.0"
+
+# Signature algorithm to use when generating signatures.
+# Note: Because this is a global setting, it requires that all signing keys are
+# generated using the same algorithm.
+opendkim_signature_algorithm: "rsa-sha256"
+
+# Enable/disable verbose logging for troubleshooting.
+opendkim_debug: False
