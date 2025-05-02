@@ -1,6 +1,9 @@
 ---
 packages_focal_opendkim:
   - opendkim
+  
+packages_jammy_opendkim:
+  - opendkim
 
 # Where should opendkim listen for requests to sign emails.
 opendkim_socket: "inet:10027@0.0.0.0"
